@@ -25,6 +25,8 @@ import { id } from 'date-fns/locale';
 import { useState, useMemo, useEffect } from 'react';
 import { useNotificationStore } from '@/store/useNotificationStore';
 
+const getTodayDateString = () => new Date().toISOString().split('T')[0];
+
 export default function AdminDashboard() {
     const { history, fetchHistory } = useTransactionStore();
     const { stores, vehicles, routes, fetchMasterData, deleteRoute } = useMasterDataStore();
@@ -52,6 +54,12 @@ export default function AdminDashboard() {
     const activeVehiclesCount = Math.min(vehicles.length, Math.ceil(history.length / 2));
     const totalVehiclesCount = vehicles.length;
     const fleetEfficiency = totalVehiclesCount > 0 ? Math.round((activeVehiclesCount / totalVehiclesCount) * 100) : 0;
+
+    // Filter routes to show only today's routes in Live Fleet Tracking
+    const todayRoutes = useMemo(() => {
+        const today = getTodayDateString();
+        return routes.filter(route => route.date?.startsWith(today));
+    }, [routes]);
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -172,13 +180,13 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="space-y-4">
-                            {routes.length === 0 ? (
+                            {todayRoutes.length === 0 ? (
                                 <div className="text-center py-12 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700">
                                     <MapPin className="mx-auto text-slate-300 mb-2" size={32} />
                                     <p className="text-slate-500 text-sm font-medium">Belum ada rute aktif saat ini.</p>
                                 </div>
                             ) : (
-                                routes.map(route => {
+                                todayRoutes.map(route => {
                                     const vehicle = vehicles.find(v => v.nopol === route.vehicleId);
                                     if (!vehicle) return null;
 
