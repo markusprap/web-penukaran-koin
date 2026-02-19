@@ -7,6 +7,7 @@ import { useTransactionStore, CoinDenom } from '@/store/useTransactionStore';
 import { useNotificationStore } from '@/store/useNotificationStore';
 import { useMasterDataStore, Store as StoreType } from '@/store/useMasterDataStore';
 import { useAssignmentStore } from '@/store/useAssignmentStore';
+import { useHydration } from '@/hooks/useHydration';
 import {
     ArrowLeft,
     ArrowRight,
@@ -354,11 +355,14 @@ export default function InputPenukaran() {
     const [showCamera, setShowCamera] = useState(false);
     const [signatureModal, setSignatureModal] = useState<{ isOpen: boolean, type: 'store' | 'finance' | null }>({ isOpen: false, type: null });
 
+    const hydrated = useHydration();
+
     useEffect(() => {
         setIsMounted(true);
+        if (!hydrated) return;
         if (!user) router.push('/app/login');
         if (!currentTransaction) router.push('/app/dashboard');
-    }, [user, currentTransaction, router]);
+    }, [user, currentTransaction, router, hydrated]);
 
     // Use real stores from backend
     const storesData = useMasterDataStore((state) => state.stores);

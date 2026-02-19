@@ -34,6 +34,7 @@ import { id } from 'date-fns/locale';
 import { useTheme } from '@/components/ThemeProvider';
 import { useNotificationStore } from '@/store/useNotificationStore';
 import { useAssignmentStore } from '@/store/useAssignmentStore';
+import { useHydration } from '@/hooks/useHydration';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
@@ -61,8 +62,10 @@ export default function FieldDashboard() {
 
     // Assignment store for real stock data
     const { assignments, fetchAssignments, getActiveAssignmentByUser, completeAssignment } = useAssignmentStore();
+    const hydrated = useHydration();
 
     useEffect(() => {
+        if (!hydrated) return;
         if (!user || !vehicle) {
             router.push('/app/login');
         } else {
@@ -71,7 +74,7 @@ export default function FieldDashboard() {
             fetchAssignments();
             fetchHistory();
         }
-    }, [user, vehicle, router, fetchMasterData, fetchAssignments, fetchHistory]);
+    }, [user, vehicle, router, fetchMasterData, fetchAssignments, fetchHistory, hydrated]);
 
     const handleStartExchange = () => {
         startNewTransaction(activeAssignment?.initialStock);

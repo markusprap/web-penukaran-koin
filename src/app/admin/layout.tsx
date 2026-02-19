@@ -23,6 +23,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useMasterDataStore } from '@/store/useMasterDataStore';
+import { useHydration } from '@/hooks/useHydration';
 
 export default function AdminLayout({
     children,
@@ -32,6 +33,7 @@ export default function AdminLayout({
     const pathname = usePathname();
     const router = useRouter();
     const { user, isAuthenticated } = useAuthStore();
+    const hydrated = useHydration();
     const [isAuthorized, setIsAuthorized] = useState(false);
     const [txMenuOpen, setTxMenuOpen] = useState(false);
 
@@ -43,6 +45,9 @@ export default function AdminLayout({
     }, [pathname]);
 
     useEffect(() => {
+        // Wait for Zustand to hydrate from localStorage
+        if (!hydrated) return;
+
         // Allow access to login page
         if (pathname === '/admin/login') {
             setIsAuthorized(true);
@@ -63,7 +68,7 @@ export default function AdminLayout({
             // Sync Master Data
             useMasterDataStore.getState().fetchMasterData();
         }
-    }, [pathname, isAuthenticated, user, router]);
+    }, [pathname, isAuthenticated, user, router, hydrated]);
 
     // Prevent flashing content before redirect
     if (!isAuthorized && pathname !== '/admin/login') {
@@ -97,8 +102,8 @@ export default function AdminLayout({
                         <button
                             onClick={() => setTxMenuOpen(!txMenuOpen)}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all font-semibold text-sm ${isTransactionActive || isWalkInActive
-                                    ? 'bg-blue-50 dark:bg-blue-900/30 text-[var(--indomaret-blue)]'
-                                    : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                                ? 'bg-blue-50 dark:bg-blue-900/30 text-[var(--indomaret-blue)]'
+                                : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                                 }`}
                         >
                             <History size={20} />
@@ -110,8 +115,8 @@ export default function AdminLayout({
                                 <Link
                                     href="/admin/transactions"
                                     className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-[13px] font-semibold ${isTransactionActive
-                                            ? 'bg-blue-50 dark:bg-blue-900/20 text-[var(--indomaret-blue)]'
-                                            : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-[var(--indomaret-blue)]'
+                                        : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                                         }`}
                                 >
                                     <History size={16} />
@@ -120,8 +125,8 @@ export default function AdminLayout({
                                 <Link
                                     href="/admin/walk-in"
                                     className={`flex items-center gap-2.5 px-3 py-2.5 rounded-lg transition-all text-[13px] font-semibold ${isWalkInActive
-                                            ? 'bg-blue-50 dark:bg-blue-900/20 text-[var(--indomaret-blue)]'
-                                            : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
+                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-[var(--indomaret-blue)]'
+                                        : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'
                                         }`}
                                 >
                                     <Building2 size={16} />

@@ -6,6 +6,7 @@ import { useAssignmentStore, Assignment } from '@/store/useAssignmentStore';
 import { useMasterDataStore } from '@/store/useMasterDataStore';
 import { useRouter } from 'next/navigation';
 import { Truck, Users, ArrowRight, ShieldCheck, Coins, AlertCircle } from 'lucide-react';
+import { useHydration } from '@/hooks/useHydration';
 
 export default function SessionSetup() {
     const { user, setSessionDetails } = useAuthStore();
@@ -17,8 +18,10 @@ export default function SessionSetup() {
     const [isLoading, setIsLoading] = useState(true);
 
     const fetchAssignments = useAssignmentStore(state => state.fetchAssignments);
+    const hydrated = useHydration();
 
     useEffect(() => {
+        if (!hydrated) return;
         if (!user) {
             router.push('/app/login');
             return;
@@ -40,7 +43,7 @@ export default function SessionSetup() {
         };
 
         syncAndCheck();
-    }, [user, router, getActiveAssignmentByUser, fetchAssignments]);
+    }, [user, router, getActiveAssignmentByUser, fetchAssignments, hydrated]);
 
     const [isStarting, setIsStarting] = useState(false);
     const updateAssignment = useAssignmentStore(state => state.updateAssignment);
