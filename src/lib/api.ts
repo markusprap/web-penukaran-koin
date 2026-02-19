@@ -1,6 +1,6 @@
 import { useAuthStore } from '@/store/useAuthStore';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4005/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || '/api';
 
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
     // Get token from auth store (works outside React components)

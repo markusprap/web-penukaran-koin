@@ -1,0 +1,125 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                 String            @id @default(uuid())
+  nik                String            @unique
+  password           String
+  full_name          String
+  role               Role              @default(FIELD)
+  position           Position          @default(DRIVER)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  cashierAssignments RouteAssignment[] @relation("CashierAssignments")
+  driverAssignments  RouteAssignment[] @relation("DriverAssignments")
+  transactions       Transaction[]
+  stock              UserStock?
+}
+
+model Store {
+  code         String        @id
+  name         String
+  address      String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  area_mgr     String?
+  area_spv     String?
+  branch       String?
+  region       String?
+  transactions Transaction[]
+}
+
+model Vehicle {
+  nopol        String            @id
+  brand        String?
+  type         String?
+  description  String?
+  id           String            @unique @default(uuid())
+  routes       RouteAssignment[]
+  transactions Transaction[]
+}
+
+model Transaction {
+  id                String              @id @default(uuid())
+  userNik           String
+  storeCode         String
+  vehicleNopol      String?
+  storeTeamName     String
+  storeTeamWa       String?
+  storeTeamPosition String?
+  storeTeamNik      String?
+  totalCoin         Float               @default(0)
+  totalBigMoney     Float               @default(0)
+  status            String              @default("completed")
+  timestamp         DateTime            @default(now())
+  createdAt         DateTime            @default(now())
+  source            String              @default("field")
+  store             Store               @relation(fields: [storeCode], references: [code])
+  user              User                @relation(fields: [userNik], references: [nik])
+  vehicle           Vehicle?            @relation(fields: [vehicleNopol], references: [nopol])
+  details           TransactionDetail[]
+}
+
+model TransactionDetail {
+  id            String      @id @default(uuid())
+  transactionId String
+  denom         Int
+  qty           Float
+  type          ItemType
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+}
+
+model UserStock {
+  userNik         String   @id
+  balanceCoin     Float    @default(0)
+  balanceBigMoney Float    @default(0)
+  lastUpdated     DateTime @updatedAt
+  user            User     @relation(fields: [userNik], references: [nik])
+}
+
+model RouteAssignment {
+  id               String   @id @default(uuid())
+  vehicleId        String
+  date             String
+  storeCodes       String[]
+  currentStopIndex Int      @default(0)
+  status           String   @default("Active")
+  cashierId        String
+  createdAt        DateTime @default(now())
+  currentStock     Json
+  driverId         String
+  initialStock     Json
+  updatedAt        DateTime @updatedAt
+  cashier          User     @relation("CashierAssignments", fields: [cashierId], references: [nik])
+  driver           User     @relation("DriverAssignments", fields: [driverId], references: [nik])
+  vehicle          Vehicle  @relation(fields: [vehicleId], references: [nopol])
+}
+
+model WarehouseStock {
+  denom     Int      @id
+  qty       Float    @default(0)
+  updatedAt DateTime @updatedAt
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  FIELD
+}
+
+enum Position {
+  DRIVER
+  CASHIER
+  ADMIN
+}
+
+enum ItemType {
+  COIN
+  BIG_MONEY
+}

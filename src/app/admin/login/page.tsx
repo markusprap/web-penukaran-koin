@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useMasterDataStore } from '@/store/useMasterDataStore';
 import { useRouter } from 'next/navigation';
-import { Lock, ArrowRight, AlertCircle, Shield } from 'lucide-react';
+import { Lock, ArrowRight, AlertCircle, Shield, Eye, EyeOff } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 
 export default function AdminLoginPage() {
@@ -12,6 +12,7 @@ export default function AdminLoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const [alertConfig, setAlertConfig] = useState<{
         isOpen: boolean;
@@ -92,14 +93,23 @@ export default function AdminLoginPage() {
 
                         <div className="space-y-1">
                             <label className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider ml-1">Password</label>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                className="w-full bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-bold"
-                                placeholder="••••••••"
-                                required
-                            />
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-700 rounded-xl py-3 px-4 pr-12 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-bold"
+                                    placeholder="••••••••"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                                >
+                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                </button>
+                            </div>
                         </div>
                     </div>
 
